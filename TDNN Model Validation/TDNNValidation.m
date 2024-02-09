@@ -9,8 +9,8 @@ x=[data(:,1:9)]';
 X=con2seq(x);
 %needs to be fixed so it dosen't hurt peoples brains
 %X=combine(data(:,1),data(:,2),data(:,3),data(:,4),data(:,5),data(:,6),data(:,7),data(:,8),data(:,9));
-T=[data(:,1) data(:,10)]';
-T=con2seq(T);
+t=[data(:,1) data(:,10)]';
+T=con2seq(t);
 
 
 %% Create TDNN 
