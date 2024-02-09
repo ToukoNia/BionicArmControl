@@ -16,8 +16,8 @@ This is divided into Time-Delay Neural Network (TDNN) code, and EMG Direct Contr
 -	This is a concept involving using the EMG signal directly to control the arm. This has downsides of lower DOF, but is more simplistic in nature
 	
 **Terms Used:**
-	Offline: This is computations done previously on a powerful computer which is then uploaded to the arm.
-	Online: This is what the arm uses in real-time
-	DOF: This is the number of axes of movement the arm has.
+-	Offline: This is computations done previously on a powerful computer which is then uploaded to the arm.
+-	Online: This is what the arm uses in real-time
+-	DOF: This is the number of axes of movement the arm has.
 
 	
