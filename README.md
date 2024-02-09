@@ -21,4 +21,3 @@ This is divided into Time-Delay Neural Network (TDNN) code, and EMG Direct Contr
 	DOF: This is the number of axes of movement the arm has.
 
 	
-![image](https://github.com/ToukoNia/BionicArmControl/assets/88745518/e71f6dfb-e3d8-44ee-bbc9-addb334d9f05)
