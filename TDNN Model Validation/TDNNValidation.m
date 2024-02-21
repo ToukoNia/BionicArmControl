@@ -5,12 +5,18 @@ data=readmatrix(filename,'NumHeaderLines',1);
 
 %Assign to variable
 %inputMatrix=array2timetable(data(:,2:9),"RowTimes",seconds(data(:,1)/1000))
-x=[data(:,1:9)]';
+x=[data(:,1:9)];
+c1=size(x,2);
+r1=length(x);
+x=reshape(x,c1,r1);
 X=con2seq(x);
-%needs to be fixed so it dosen't hurt peoples brains
-%X=combine(data(:,1),data(:,2),data(:,3),data(:,4),data(:,5),data(:,6),data(:,7),data(:,8),data(:,9));
-t=[data(:,1) data(:,10)]';
-T=con2seq(t);
+
+%Manual transposition???
+% t=[data(:,1) data(:,10)];
+% c1=size(t,2);
+% r1=length(t);
+% t=reshape(t,c1,r1);
+% T=con2seq(t);
 
 
 %% Create TDNN 

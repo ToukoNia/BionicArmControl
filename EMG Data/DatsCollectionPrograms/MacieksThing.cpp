@@ -98,4 +98,23 @@ void loop() {
     int envlopeT = sq(DataAfterFilterT);
     // any value under threshold will be set to zero
     envlopeT = (envlopeT > ThresholdT) ? envlopeT : 0;
-... (20 lines left)
+
+
+    timeStamp = micros() - timeStamp;
+    if (TIMING_DEBUG) {
+        // Serial.print("Read Data: "); Serial.println(Value);
+        // Serial.print("Filtered Data: ");Serial.println(DataAfterFilter);
+        //Serial.print("Squared Data: ");
+        // Bicep                                    Tricep
+        Serial.print(envlopeB); Serial.print(", "); Serial.println(envlopeT);
+        // Serial.print("Filters cost time: "); Serial.println(timeStamp);
+        // the filter cost average around 520 us
+    }
+
+    /*------------end here---------------------*/
+    // if less than timeBudget, then you still have (timeBudget - timeStamp) to
+    // do your work
+    delayMicroseconds(500);
+    // if more than timeBudget, the sample rate need to reduce to
+    // SAMPLE_FREQ_500HZ
+}
