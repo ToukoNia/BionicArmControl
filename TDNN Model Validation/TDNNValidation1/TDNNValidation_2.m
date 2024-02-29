@@ -1,6 +1,6 @@
 %% Get Data
 %Import Excel File
-filename='test3.csv';
+filename='test1.csv';
 data=readmatrix(filename,'NumHeaderLines',1);
 
 %Assign to variable
