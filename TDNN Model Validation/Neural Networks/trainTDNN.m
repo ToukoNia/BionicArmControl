@@ -13,6 +13,7 @@
 % (increases training time)
 % If using different data don't forget to change the number of inputs and
 % outputs.
+
 layers = [ ...
     sequenceInputLayer(8)                                                   % How many inputs there are
     convolution1dLayer(5,64, "Padding","same")                              % Sets up a convolution with an overlap of 5, and 64 filters. It pads the edges with same items.
