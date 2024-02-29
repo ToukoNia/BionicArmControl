@@ -6,7 +6,7 @@ This is divided into Time-Delay Neural Network (TDNN) code, and EMG Direct Contr
 **TDNN**
 
 - 	This is a concept we came up with to interpret an EMG signal using a TDNN (read more here: https://kaleidoescape.github.io/tdnn/) in order to create an offline model, and then use classification machine learning on the online to be used in real-time. This is inline with paper's such as: https://ieeexplore.ieee.org/abstract/document/8868796
-	
+
 	Currently, we are trying to implement this model via using MATLAB's timedelaynet function and deep learning toolbox.
 	
 		
