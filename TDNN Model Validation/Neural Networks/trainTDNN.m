@@ -15,7 +15,7 @@
 % outputs.
 
 layers = [ ...
-    sequenceInputLayer(8)                                                   % How many inputs there are
+    sequenceInputLayer(4)                                                   % How many inputs there are
     convolution1dLayer(5,64, "Padding","same")                              % Sets up a convolution with an overlap of 5, and 64 filters. It pads the edges with same items.
     reluLayer                                                               % Activation with max thresholding at 0
     convolution1dLayer(5,64, "Padding","same")                              

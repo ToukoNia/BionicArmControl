@@ -43,7 +43,7 @@ while hasdata(sdslbl)
     idx_end = [idx_start(2:end)-1;idx_start(end)+(3*fs)];
     
     val = categorical(label{1}(2:end-1)',[1 2 3 4 5 6 7], ...
-          ["HandOpen" "HandClose" "WristFlexion" "WristExtension" "Supination" "Pronation" "Rest"]);
+          ["Elbow Flex" "Supinate" "Rest" "Open Hand" "Pronate" "Close Hand" "Elbow Extension"]);
     ROI = [idx_start idx_end];
 
     % In some cases, the number of label values and ROIs are not equal.
