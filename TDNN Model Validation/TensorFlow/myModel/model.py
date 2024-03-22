@@ -1,13 +1,13 @@
 #    This file was created by
 #    MATLAB Deep Learning Toolbox Converter for TensorFlow Models.
-#    29-Feb-2024 16:47:48
+#    20-Mar-2024 10:02:56
 
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
 def create_model():
-    sequenceinput = keras.Input(shape=(None,8))
+    sequenceinput = keras.Input(shape=(None,4))
     conv1d_1 = layers.Conv1D(64, 5, padding="same", name="conv1d_1_")(sequenceinput)
     relu_1 = layers.ReLU()(conv1d_1)
     conv1d_2 = layers.Conv1D(64, 5, padding="same", name="conv1d_2_")(relu_1)

@@ -1,6 +1,6 @@
 This Python package was created by
 MATLAB Deep Learning Toolbox Converter for TensorFlow Models.
-29-Feb-2024 16:47:48
+20-Mar-2024 10:02:56
 
 This package contains a TensorFlow model exported from MATLAB.
 
@@ -15,14 +15,14 @@ USAGE
 
 * To load the model with weights:
 
-    import aSmallNetwork
-    model = aSmallNetwork.load_model()
+    import myModel
+    model = myModel.load_model()
 
 
 * To load the model without weights:
 
-    import aSmallNetwork
-    model = aSmallNetwork.load_model(load_weights=False)
+    import myModel
+    model = myModel.load_model(load_weights=False)
 
 
 * To save a loaded model into TensorFlow SavedModel format:
