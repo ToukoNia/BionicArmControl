@@ -55,4 +55,4 @@ net=trainNetwork(traindata(:,1),traindata(:,2),layers,options);
 predTest = classify(net,traindata(:,1),MiniBatchSize=32);
 confusionchart([traindata{:,2}],[predTest{:}],Normalization="column-normalized")
 
-exportNetworkToTensorFlow(net, "emgTDNNNetwork")
+exportNetworkToTensorFlow(net, "myModel")
