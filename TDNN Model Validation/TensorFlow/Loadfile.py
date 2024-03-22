@@ -5,7 +5,7 @@ import csv
 
 def PredictCurrentSignal(threshold):
     stream = "test36.csv"
-    model=tf.keras.models.load_model(r'C:\Users\Rayne\Downloads\myModel\myModel\model.py')                         #gets the model from the associated folder
+    model=tf.keras.models.load_model(r'C:\Users\georg\Desktop\Uni\Bionics\BionicsNew\BionicArmControl\TDNN Model Validation\TensorFlow\proofOfConceptofTensorFlow\model.py')                         #gets the model from the associated folder
     testData=readCSV(stream)                                                            #loads test data
     probability_model=tf.keras.Sequential([model,tf.keras.layers.Softmax()])            #creates the model
     predictions = probability_model.predict(testData)                                   #uses the model to predict 
