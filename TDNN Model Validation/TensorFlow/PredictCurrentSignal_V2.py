@@ -3,13 +3,13 @@ from tensorflow import keras
 import numpy as np
 import csv
 import myModel
-import os
+
 
 #path=os.path.join(f'{myModel}/{model.py}')
 
 def PredictCurrentSignal(threshold):
     stream = "placeholder"
-    model=myModel.load_model()            #gets the model from the associated folder
+    model=myModel.load_model(load_weights=False)                                                          #gets the model from the associated folder
     testData=readCSV(stream)                                                            #loads test data
     probability_model=tf.keras.Sequential([model,tf.keras.layers.Softmax()])            #creates the model
     predictions = probability_model.predict(testData)                                   #uses the model to predict 
