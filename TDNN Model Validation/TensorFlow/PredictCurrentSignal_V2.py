@@ -1,11 +1,13 @@
 import tensorflow as tf
-import numpy as np
 import myModel
+import numpy as np
 
 def PredictCurrentSignal(threshold):
     stream = "placeholder"
 
-    model =tf.keras.models.load_model(r"C:\Users\Rayne\Documents\GitHub\BionicArmControl\TDNN Model Validation\TensorFlow\myModel")  # Load the MODEL                                                          #gets the model from the associated folder
+    model = myModel.load_model(load_weights=False)
+#   model=tf.keras.models.load_model(r"C:\Users\Rayne\Documents\GitHub\BionicArmControl\TDNN Model Validation\TensorFlow\myModel")  # Load the MODEL                                                          #gets the model from the associated folder
+    model.load_weights(r'C:\Users\Rayne\Documents\GitHub\BionicArmControl\TDNN Model Validation\TensorFlow\myModel\weights.h5')
     testData=readCSV(stream)                                                            #loads test data
     if testData is None or testData.size == 0:
         return 999  # Return error code if test data is empty or invalid
