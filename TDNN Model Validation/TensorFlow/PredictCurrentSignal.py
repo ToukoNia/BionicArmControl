@@ -1,11 +1,12 @@
 import tensorflow as tf
 from tensorflow import keras
+import myModel
 import numpy as np
 import csv
 
 def PredictCurrentSignal(threshold):
-    stream = "test36.csv"
-    model=tf.keras.layers.TFSMLayer(r'C:\Users\Rayne\Downloads\myModel\myModel\model.py', call_endpoint='serving_default')                         #gets the model from the associated folder
+    stream = r"C:\Users\Rayne\Documents\GitHub\BionicArmControl\TDNN Model Validation\TensorFlow\myModeldata\unlabelled1.csv"
+    model=tf.keras.layers.TFSMLayer(r'myModeldata\model.py', call_endpoint='serving_default')                         #gets the model from the associated folder
     testData=readCSV(stream)                                                            #loads test data
     probability_model=tf.keras.Sequential([model,tf.keras.layers.Softmax()])            #creates the model
     predictions = probability_model.predict(testData)                                   #uses the model to predict 
