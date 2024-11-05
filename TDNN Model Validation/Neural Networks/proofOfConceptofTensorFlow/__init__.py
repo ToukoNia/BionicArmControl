@@ -2,7 +2,7 @@
 #    MATLAB Deep Learning Toolbox Converter for TensorFlow Models.
 #    29-Feb-2024 16:47:48
 
-import aSmallNetwork.model
+import model
 import os
 
 def load_model(load_weights=True, debug=False):
@@ -16,7 +16,7 @@ def load_model(load_weights=True, debug=False):
 import tensorflow as tf
 import h5py
 
-def loadWeights(model, filename=os.path.join(__package__, "weights.h5"), debug=False):
+def loadWeights(model, filename=os.path.join("weights.h5"), debug=False):
     with h5py.File(filename, 'r') as f:
         # Every layer is an h5 group. Ignore non-groups (such as /0)
         for g in f:
