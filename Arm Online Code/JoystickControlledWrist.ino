@@ -1,4 +1,3 @@
-
 //import the servo library
 #include "Servo.h"
 #include <EMGFilters.h>
@@ -10,9 +9,7 @@ Servo HandRPAct;
 Servo HandIMAct;
 Servo ForearmAct;
 //set up pins
-const int potWristPin = 0;
-const int potHandPin = 1;
-const int buttonWristPin=3;
+
 const int wristLActPin=8;
 const int wristRActPin=9;
 
@@ -21,7 +18,8 @@ static int joyWristPin[] = {A0, A1};
 const int handRPPin=5;
 const int handIMPin=6;
 const int forearmActPin=11;
-const int forearmButton=4;
+int switchEMGButton=4;
+
 static byte SensorInputPins[] = { A2, A3};
 static int SensorThresholds[] = { 204, 81};
 
@@ -36,16 +34,15 @@ int jxval, jyval, jxangle, jyangle;
 #define NumOfSensors 2
 
 //values needed for calculations
-int buttonForearmPressed=0;
+int switchEMGPressed=0;
 int pvalue;
 int actang;
-int buttonWristPressed=0;
 int time=0;
 int wristTime=0;
 int timeCount = 0;
 
 int actHandAng=20;
-
+int actForearmAng=90;
 #define sampl 20
 int count;
 
@@ -84,15 +81,23 @@ void loop() {
   timeStamp = micros();  
   readSensors();
   averaging();
-  HandMovement();
   WristMovement();
-  ForearmMovement();
+  if (digitalRead(switchEMGButton)&&time+250<millis()){
+    switchEMGPressed++;
+    time=millis();  
+  }
+  
+  if (switchEMGPressed%2){
+    //ForearmMovement();
+  } else{
+    //HandMovement();
+  }
 
   timeStamp = micros() - timeStamp;
-  if (TIMING_DEBUG) {
+  //if (TIMING_DEBUG) {
     // Serial.print(average[0]); Serial.print(", "); Serial.println(average[1]);
     //can output stuff here for debugging
-  }
+  //}
   timeCount++;
   delayMicroseconds(500);
   // if more than timeBudget, the sample rate need to reduce to
@@ -101,57 +106,39 @@ void loop() {
 
 // revised?
 void WristMovement() {
-  int tempx = 0;
-  int tempy = 0;
-  if (digitalRead(joyWristPin[0]) && millis() > wristTime + 200) wristTime = millis();
-  jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
-  jxangle = map(jxval, 0, 1023, 50, 140); // map x to acceptable values
-  tempx = jxangle;
-
-  if (digitalRead(joyWristPin[1]) && millis() > wristTime + 200) wristTime = millis();
-  jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
-  jyangle = map(jyval, 0, 1023, 50, 140); // map y to acceptable values
-  tempy = jyangle;
-
-  Serial.println(jxangle);
-  Serial.println(jyangle);
+  if (analogRead(joyWristPin[0])){
+    jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
+    jxangle = map(jxval, 0, 1023, 50, 140); // map x to acceptable values
+  }
+  if (analogRead(joyWristPin[1])){
+    jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
+    jyangle = map(jyval, 0, 1023, 50, 140); // map y to acceptable values
+  } 
 
   // x (LR) movement
-  if (jxangle <= 95) {
-    WristLAct.write(-jxangle); // if j val is left
+  if (jxangle < 90) {
+    WristLAct.write(map(jxangle,50,140,140,50)); // if j val is left
     WristRAct.write(jxangle);
+    return;
   }
-  if (jxangle > 95) {
-    WristLAct.write(jxangle); // if j val is right
-    WristRAct.write(-jxangle);
+  else if (jxangle > 100) {
+    WristLAct.write(map(jxangle,50,140,140,50)); // if j val is right
+    WristRAct.write(jxangle);
+    return;;
   }
 
   // y (UD) movement
-  if (jyangle <= 95) {
+  if (jyangle < 90) {
     WristLAct.write(jyangle); // if j val is left
     WristRAct.write(jyangle);
+    return;
   }
-  if (jyangle > 95) {
-    WristLAct.write(-jyangle); // if j val is right
-    WristRAct.write(-jyangle);
+  else if (jyangle > 100) {
+    WristLAct.write(jyangle); // if j val is right
+    WristRAct.write(jyangle);
+    return;
   }
 }
-
-/*
-void WristMovement(){ //
-  if(digitalRead(buttonWristPin)&&millis()>wristTime+200){  //digital debounce, counts button presses
-    buttonWristPressed++;
-    wristTime=millis();
-  };
-   pvalue = analogRead(potWristPin); //finds the potentionmeter value, maps to actuator, writes
-  actang = map(pvalue, 0, 1023, 50, 140);
-  WristLAct.write(actang);
-  if (!(buttonWristPressed%2)){
-    WristRAct.write(actang);
-    } else{
-      WristRAct.write(map(actang,50,140,140,50)); //reverse one direction to let the wrist turn
-    }
-}*/
 
 void HandMovement() {  //Hand Movement
   if (average[1] > (average[0]+20) && actHandAng >= 20) {
@@ -164,16 +151,13 @@ void HandMovement() {  //Hand Movement
 }
 
 void ForearmMovement() { //moves the forarm 90 when button pressed
-  if(digitalRead(forearmButton) && millis() > time + 200) {
-    buttonForearmPressed++;
-    if(buttonForearmPressed % 2) {
-      ForearmAct.write(170);
-    } else {
-      ForearmAct.write(90);
-    }
-    time=millis();
+  if (average[1] > (average[0]+20) && actForearmAng >= 12) {
+    actForearmAng=actForearmAng-2;
+  } else if (average[0] > (average[1]+20) && actForearmAng <= 168) {
+    actForearmAng=actForearmAng+2;
   }
-}
+  ForearmAct.write(actForearmAng);
+  }
 
 int readSensors() {
   for (int n = 0; n < NumOfSensors; n++) {
@@ -200,19 +184,3 @@ int averaging() {
   }
   count++;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
