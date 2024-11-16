@@ -22,7 +22,7 @@ const int switchEMGButton=4;
 const int EMG_THRESHOLD=20;
 
 static byte SensorInputPins[] = { A2, A3};
-static int SensorThresholds[] = { 204, 81};
+static int SensorThresholds[] = { 203, 81}; //Nia 36 and 20
 
 // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
 int sampleRate = SAMPLE_FREQ_500HZ;
@@ -54,8 +54,8 @@ int EMGvalues[NumOfSensors];
 
 double average[NumOfSensors];
 int sum[NumOfSensors];
-
-
+int wristRAng=85; int wristLAng=85;
+int jxincr=0; int jyincr=0;
 
 unsigned long timeStamp;
 unsigned long timeBudget;
@@ -92,7 +92,6 @@ void loop() {
   buttonValue = !digitalRead(switchEMGButton);
 
   if (buttonValue == 1 && buttonFlag == 0 && millis() > time + 250) {
-    Serial.println("Button pressed!");
     switchEMGPressed++;
     time=millis();
     buttonFlag = 1;
@@ -105,9 +104,10 @@ void loop() {
     ForearmMovement();
  //   Serial.println("Forearm movement active");
   } else {
-    HandMovement();
+   HandMovement();
   //  Serial.println("Hand movement active");
   }
+
   Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]); 
 
   timeStamp = micros() - timeStamp;
@@ -124,27 +124,30 @@ void loop() {
 
 // revised?
 void WristMovement() {
-  if (analogRead(joyWristPin[0])){
-    jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
-    jxangle = map(jxval, 0, 1023, 50, 140); // map x to acceptable values
-  }
-  if (analogRead(joyWristPin[1])){
-    jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
-    jyangle = map(jyval, 0, 1023, 50, 140); // map y to acceptable values
-  } 
+
+  jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
+  jxincr = map(jxval+10, 0, 1023, -2, 2); // map x to acceptable values
+  jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
+  jyincr = map(jyval, 0, 1023, -2, 2); // map y to acceptable values
 
   // x (LR) movement
-  if (jxangle < 90 || jxangle > 100) {
-    WristLAct.write(map(jxangle,50,140,140,50)); // if j val is left
-    WristRAct.write(jxangle);
-    return;
-  }
+    wristLAng=wristLAng-jxincr;
+    wristRAng=wristRAng+jxincr;
+
   // y (UD) movement
-  if (jyangle < 90 || jyangle > 100) {
-    WristLAct.write(jyangle); // if j val is left
-    WristRAct.write(jyangle);
-    return;
-  }
+
+    wristLAng=wristLAng+jyincr;
+    wristRAng=wristRAng+jyincr;
+    
+
+  wristLAng=(wristLAng<140) ? wristLAng : 140;
+  wristLAng=(wristLAng>50) ? wristLAng : 50;
+  
+  wristRAng=(wristRAng<140) ? wristRAng : 140;
+  wristRAng=(wristRAng>50) ? wristRAng : 50;
+
+  WristLAct.write(wristLAng); // if j val is left
+  WristRAct.write(wristRAng);
 }
 
 void HandMovement() {  //Hand Movement
