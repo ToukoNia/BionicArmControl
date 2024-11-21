@@ -126,9 +126,9 @@ void loop() {
 void WristMovement() {
 
   jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
-  jxincr = map(jxval+10, 0, 1023, -2, 2); // map x to acceptable values
+  jxincr = map(jxval+10, 0, 1023, -1, 1); // map x to acceptable values
   jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
-  jyincr = map(jyval, 0, 1023, -2, 2); // map y to acceptable values
+  jyincr = map(jyval, 0, 1023, -1, 1); // map y to acceptable values
 
   // x (LR) movement
     wristLAng=wristLAng-jxincr;
@@ -140,10 +140,10 @@ void WristMovement() {
     wristRAng=wristRAng+jyincr;
     
 
-  wristLAng=(wristLAng<140) ? wristLAng : 140;
+  wristLAng=(wristLAng<130) ? wristLAng : 130;
   wristLAng=(wristLAng>50) ? wristLAng : 50;
   
-  wristRAng=(wristRAng<140) ? wristRAng : 140;
+  wristRAng=(wristRAng<130) ? wristRAng : 130;
   wristRAng=(wristRAng>50) ? wristRAng : 50;
 
   WristLAct.write(wristLAng); // if j val is left

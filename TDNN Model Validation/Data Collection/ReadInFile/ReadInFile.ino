@@ -3,8 +3,8 @@
 #include <EMGFilters.h>
 
 
-static byte SensorInputPins[] = { A2, A3};
-static int SensorThresholds[] = { 204, 81};
+static byte SensorInputPins[] = { A0, A1};
+static int SensorThresholds[] = { 0, 0};
 
 String motion[7] = {"Elbow flex","Elbow extension","Open hand","Close hand","Supinate","Pronate","Rest"};
 int randMotion = 0;
@@ -53,7 +53,7 @@ void loop() {
   delayMicroseconds(500);
 
   if (TIMING_DEBUG){
-    Serial.print(motion[randMotion]); Serial.print(", "); Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]);   
+    Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]);   
   }
   // if more than timeBudget, the sample rate need to reduce to
   // SAMPLE_FREQ_500HZ
