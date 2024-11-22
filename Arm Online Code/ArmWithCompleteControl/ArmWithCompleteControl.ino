@@ -88,7 +88,7 @@ void loop() {
   readSensors();
   averaging();
   WristMovement();
-
+  
   buttonValue = !digitalRead(switchEMGButton);
 
   if (buttonValue == 1 && buttonFlag == 0 && millis() > time + 250) {
@@ -101,15 +101,15 @@ void loop() {
 
   
   if (switchEMGPressed%2){
-    ForearmMovement();
+   ForearmMovement();
  //   Serial.println("Forearm movement active");
   } else {
-   HandMovement();
+  // HandMovement();
   //  Serial.println("Hand movement active");
   }
 
   Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]); 
-
+ 
   timeStamp = micros() - timeStamp;
   //if (TIMING_DEBUG) {
     // Serial.print(average[0]); Serial.print(", "); Serial.println(average[1]);
@@ -126,10 +126,10 @@ void loop() {
 void WristMovement() {
 
   jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
-  jxincr = map(jxval+10, 0, 1023, -1, 1); // map x to acceptable values
+  jxincr = (jxval>490 && jxval<510) ? 0 : map(jxval, 0, 1023, -2, 2); // map x to acceptable values
   jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
-  jyincr = map(jyval, 0, 1023, -1, 1); // map y to acceptable values
-
+  jyincr= (jyval>500 && jyval<520) ? 0: map(jyval, 0, 1023, -2, 2); // map x to acceptable values;
+  //jyincr = map(jyval, 0, 1023, -2, 2); // map y to acceptable values
   // x (LR) movement
     wristLAng=wristLAng-jxincr;
     wristRAng=wristRAng+jxincr;
