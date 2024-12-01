@@ -22,7 +22,7 @@ const int switchEMGButton=4;
 const int EMG_THRESHOLD=20;
 
 static byte SensorInputPins[] = { A2, A3};
-static int SensorThresholds[] = { 203, 81}; //Nia 36 and 20
+static int SensorThresholds[] = { 0, 0}; //Nia 36 and 20
 
 // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
 int sampleRate = SAMPLE_FREQ_500HZ;
@@ -104,7 +104,7 @@ void loop() {
    ForearmMovement();
  //   Serial.println("Forearm movement active");
   } else {
-  // HandMovement();
+   HandMovement();
   //  Serial.println("Hand movement active");
   }
 
