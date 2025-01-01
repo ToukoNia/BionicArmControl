@@ -6,7 +6,7 @@ import os
 
 
 # Configure the serial connection
-arduino_port = "COM3"  # Arduino's port
+arduino_port = "COM15"  # Arduino's port
 baud_rate = 9600       # same as arduino baud rate
 output_file = "emgData.csv"
 
@@ -21,7 +21,7 @@ print("Connected to Arduino on", arduino_port)
 
 with open(file_path, mode='a', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(["Timestamp", "Sensor1", "Sensor2"])
+    writer.writerow(["Timestamp (micros)", "Sensor1 (mV)", "Sensor2 (mV)"])
 
     try:
         print("Recording data. Press Ctrl+C to stop.")
@@ -31,9 +31,6 @@ with open(file_path, mode='a', newline='') as file:
             # Read a line of data from Arduino
             line = ser.readline().decode('utf-8').strip()  # Read and decode line
             data = line.split(",")  #converts data line into array
-
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            data = [timestamp] + data
             
             # Write the data to the CSV file
             writer.writerow(data)

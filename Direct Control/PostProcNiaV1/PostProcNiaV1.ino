@@ -22,7 +22,7 @@ const int switchEMGButton=4;
 const int EMG_THRESHOLD=20;
 
 static byte SensorInputPins[] = { A2, A3};
-static int SensorThresholds[] = { 100, 50}; //Nia 36 and 20
+static int SensorThresholds[] = { 50, 20}; //wAS FAVOURING OPEN SO SWAPPED
 
 // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
 int sampleRate = SAMPLE_FREQ_500HZ;
@@ -30,6 +30,10 @@ int sampleRate = SAMPLE_FREQ_500HZ;
 int humFreq = NOTCH_FREQ_50HZ;
 
 int jxval, jyval, jxangle, jyangle;
+
+bool trend=0;
+int trendcounter = 0;
+
 
 #define TIMING_DEBUG 1
 #define NumOfSensors 2
@@ -59,7 +63,7 @@ int jxincr=0; int jyincr=0;
 
 unsigned long timeStamp;
 unsigned long timeBudget;
-
+unsigned long timeCripple=0;
 void setup() 
 {
   WristLAct.attach(wristLActPin);
@@ -99,15 +103,16 @@ void loop() {
     buttonFlag = 0;
   }
 
-  
-  if (switchEMGPressed%2){
-   ForearmMovement();
- //   Serial.println("Forearm movement active");
-  } else {
-   HandMovement();
-  //  Serial.println("Hand movement active");
+  if (millis()>timeCripple+5){
+    if (switchEMGPressed%2){
+      ForearmMovement();
+  //   Serial.println("Forearm movement active");
+    } else {
+    HandMovement();
+    //  Serial.println("Hand movement active");
+    }
+    timeCripple=millis();
   }
-
   //Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]); 
  
   timeStamp = micros() - timeStamp;
@@ -122,13 +127,11 @@ void loop() {
 }
 
 
-// revised?
 void WristMovement() {
-
   jxval = analogRead(joyWristPin[0]); // read the x value of the joystick
   jxincr = (jxval>490 && jxval<510) ? 0 : map(jxval, 0, 1023, -2, 2); // map x to acceptable values
   jyval = analogRead(joyWristPin[1]); // read the y value of the joystick
-  jyincr= (jyval>500 && jyval<520) ? 0: map(jyval, 0, 1023, -2, 2); // map x to acceptable values;
+  jyincr= (jyval>500 && jyval<520) ? 0: map(jyval, 0, 1023, -2, 2); // map y to acceptable values;
   //jyincr = map(jyval, 0, 1023, -2, 2); // map y to acceptable values
   // x (LR) movement
     wristLAng=wristLAng-jxincr;
@@ -138,7 +141,7 @@ void WristMovement() {
 
     wristLAng=wristLAng+jyincr;
     wristRAng=wristRAng+jyincr;
-  
+    
 
   wristLAng=(wristLAng<130) ? wristLAng : 130;
   wristLAng=(wristLAng>50) ? wristLAng : 50;
@@ -152,23 +155,45 @@ void WristMovement() {
 
 void HandMovement() {  //Hand Movement
   if (average[1] > (average[0]+EMG_THRESHOLD) && actHandAng >= 21) {
-    actHandAng--;
+    if (postProc(0)){
+      actHandAng--;
+    };
+
   } else if (average[0] > (average[1]+EMG_THRESHOLD) && actHandAng <= 179) {
-    actHandAng++;
+    if (postProc(1)){
+      actHandAng++;
+
+    };
   }
   HandIMAct.write(actHandAng);
   HandRPAct.write(map(actHandAng,20,180,180,20)); //opposite bc the servo goes the other way
 }
 
-void ForearmMovement() { //moves the forarm 90 when button pressed
+void ForearmMovement() {//edit me
   if (average[1] > (average[0]+EMG_THRESHOLD) && actForearmAng >= 11) {
-    actForearmAng--;
+    if (postProc(0)){
+      actForearmAng--;
+    };
   } else if (average[0] > (average[1]+EMG_THRESHOLD) && actForearmAng <= 169) {
-    actForearmAng++;
+    if (postProc(1)){
+      actForearmAng++;
+    };
   }
   ForearmAct.write(actForearmAng);
+  
   }
 
+bool postProc(bool direction){
+  if (trend!=direction){
+      trendcounter=0;
+      trend=direction;
+  } //else if (!trendcounter){
+   // trendcounter++;
+   else{
+      return 1;
+  }
+  return 0;
+}
 int readSensors() {
   for (int n = 0; n < NumOfSensors; n++) {
     EMGvalues[n] = analogRead(SensorInputPins[n]);

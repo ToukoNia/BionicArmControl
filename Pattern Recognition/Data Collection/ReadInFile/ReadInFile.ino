@@ -53,7 +53,7 @@ void loop() {
   delayMicroseconds(500);
 
   if (TIMING_DEBUG){
-    Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]);   
+    Serial.print(micros()) ; Serial.print(", "); Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]);   
   }
   // if more than timeBudget, the sample rate need to reduce to
   // SAMPLE_FREQ_500HZ

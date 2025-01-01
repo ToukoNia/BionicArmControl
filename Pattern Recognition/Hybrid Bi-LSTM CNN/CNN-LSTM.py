@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, BatchNormalization, LSTM, Bidirectional
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
-from keras.models import Sequential, load_model
+from keras.models import Sequential
 from tensorflow.keras import layers
 
 window_size =1
