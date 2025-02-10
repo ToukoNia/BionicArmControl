@@ -1,6 +1,9 @@
 //import the servo library
 #include "Servo.h"
 #include <EMGFilters.h>
+#include <LCD-I2C.h>
+#include <Wire.h>
+
 
 //Set up servos
 Servo WristLAct;
@@ -9,6 +12,8 @@ Servo HandRPAct;
 Servo HandIMAct;
 Servo ForearmAct;
 //set up pins
+
+LCD_I2C lcd(0x27, 16, 2); // Default address of most PCF8574 modules, change according
 
 const int wristLActPin=8;
 const int wristRActPin=9;
@@ -77,6 +82,11 @@ void setup()
   //pinMode(potHandPin,INPUT);
   //pinMode(buttonPin,INPUT);
   
+  Wire.begin();
+  lcd.begin(&Wire);
+  lcd.display();
+  lcd.backlight();
+  updateDisplay(1);
 
   for (int n = 0; n < NumOfSensors; n++) { // Setup for the sensors
     EMGs[n].init(sampleRate, humFreq, true, true, true);
@@ -91,7 +101,6 @@ void loop() {
   timeStamp = micros();  
   readSensors();
   averaging();
-  WristMovement();
   
   buttonValue = !digitalRead(switchEMGButton);
 
@@ -106,11 +115,16 @@ void loop() {
   if (millis()>timeCripple+5){
     if (switchEMGPressed%2){
       ForearmMovement();
-  //   Serial.println("Forearm movement active");
+      if (buttonFlag){
+        updateDisplay(0);
+      }
     } else {
-    HandMovement();
-    //  Serial.println("Hand movement active");
+      HandMovement();
+      if (buttonFlag){
+        updateDisplay(1);
+      }
     }
+      WristMovement();
     timeCripple=millis();
   }
   //Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]); 
@@ -149,6 +163,8 @@ void WristMovement() {
   wristRAng=(wristRAng<130) ? wristRAng : 130;
   wristRAng=(wristRAng>50) ? wristRAng : 50;
 
+  wristLAng=(wristLAng>wristRAng+40) ? wristRAng+40 : wristLAng;
+  wristRAng=(wristRAng>wristLAng+40) ? wristLAng+40 : wristRAng;
   WristLAct.write(wristLAng); // if j val is left
   WristRAct.write(wristRAng);
 }
@@ -218,4 +234,16 @@ int averaging() {
     }
   }
   count++;
+}
+
+void updateDisplay(bool hand){
+  lcd.clear();
+  lcd.print("EMGs Controlling");
+  if (hand){
+    lcd.setCursor(6,1);
+    lcd.print("Hand");
+  } else{
+    lcd.setCursor(5,1);
+    lcd.print("Forearm");
+  }
 }
