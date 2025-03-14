@@ -27,6 +27,7 @@ void setup() {
 }
 
 void loop() {
+  
   buttonValue = !digitalRead(joystickButton);
 
   if (buttonValue == 1 && buttonFlag == 0 && millis() > buttonTime + 250) {
@@ -41,8 +42,14 @@ void loop() {
     wristMove();
  // wristL.write(map(analogRead(PLPot),0,1023,0, 180));
  // wristR.write(map(analogRead(PRPot),0,1023,0, 180));
+
+
 }
 
+void constructionSetup(){
+  wristL.write(90);
+  wristR.write(90);
+}
 void wristMove(){
   
    if (!(joystickButtonPressed%2)){
