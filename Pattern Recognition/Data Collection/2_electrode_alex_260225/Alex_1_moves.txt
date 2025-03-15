@@ -1,0 +1,30 @@
+1: 7 - Rest
+2: 1 - Open Hand
+3: 2 - Close Hand
+4: 7 - Rest
+5: 2 - Close Hand
+6: 5 - Elbow Extension
+7: 7 - Rest
+8: 2 - Close Hand
+9: 6 - Elbow Flex
+10: 7 - Rest
+11: 2 - Close Hand
+12: 3 - Supination
+13: 6 - Elbow Flex
+14: 1 - Open Hand
+15: 5 - Elbow Extension
+16: 1 - Open Hand
+17: 4 - Pronation
+18: 6 - Elbow Flex
+19: 4 - Pronation
+20: 2 - Close Hand
+21: 7 - Rest
+22: 5 - Elbow Extension
+23: 2 - Close Hand
+24: 3 - Supination
+25: 1 - Open Hand
+26: 3 - Supination
+27: 6 - Elbow Flex
+28: 3 - Supination
+29: 6 - Elbow Flex
+30: 3 - Supination

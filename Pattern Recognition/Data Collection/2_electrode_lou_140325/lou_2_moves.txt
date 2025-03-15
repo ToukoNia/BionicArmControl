@@ -1,0 +1,62 @@
+1.Elbow flex
+2.Supinate 
+3.Rest
+4.Open hand
+5.Pronate
+6.Supinate
+7.Rest
+8.Elbow flex 
+9.Pronate
+10.Close hand
+11.Rest
+12.Open hand
+13.Supinate
+14.Elbow flex
+15.Close hand
+16.Pronate
+17.Elbow extend
+18.Open hand
+19.Supinate
+20.Rest
+21.Close hand
+22.Open hand
+23.Rest
+24.Elbow flex
+25.Elbow extend
+26.Rest
+27.Supinate 
+28.Pronate 
+29Elbow flex 
+30.Close hand
+31.Elbow extend
+32.Elbow flex
+33.Supinate 
+34.Rest
+35.Open hand
+36.Pronate
+37.Supinate
+38.Rest
+39.Elbow flex 
+40.Pronate
+41.Close hand
+42.Rest
+43.Open hand
+44.Supinate
+45.Elbow flex
+46.Close hand
+47.Pronate
+48.Elbow extend
+49.Close hand
+50.Supinate
+51.Rest
+52.Close hand
+53.Open hand
+54.Rest
+55.Elbow flex
+56.Elbow extend
+57.Rest
+58.Supinate 
+59.Pronate 
+60.Elbow flex 
+61.Close hand
+62.Elbow extend
