@@ -13,11 +13,6 @@ Servo wristR;
 int leftAngle;
 int rightAngle;
 
-int jxval, jyval, jxangle, jyangle;
-
-unsigned long timeStamp;
-double timeIncr;
-
 // IMU Setup
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 uint16_t measurement_delay_us = 65535;
@@ -66,9 +61,6 @@ void setup()
     
   bno.setExtCrystalUse(true);
 
-  constructionSetup();
-  internalTime = millis();
-  constructionSetup();
 
   delay(3000);
   constructionSetup();
@@ -134,17 +126,6 @@ void wristIK(int yaw,int pitch){
   leftAngle=max(0,min(leftAngle,180));
   rightAngle=(yaw+pitch)+90;
   rightAngle=max(0,min(rightAngle,180));
-  wristL.write(leftAngle);
-  wristR.write(rightAngle);
-   Serial.print(" | leftAngle: ");
-   Serial.print(leftAngle);
-   Serial.print(" | rightAngle: ");
-   Serial.println(rightAngle);
-  // Serial.print(" | pitch: ");
-  // Serial.print(pitchIK);
-  // Serial.print(" | yaw: ");
-  // Serial.println(yawIK);
-
 }
 
 int WristPID(double Kp, double Ki,double Kd,double input,int previous_input, double* iSum, int goal){

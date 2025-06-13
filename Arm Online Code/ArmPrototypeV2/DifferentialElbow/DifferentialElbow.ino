@@ -42,11 +42,11 @@ void constructionSetup(){
 }
 
 void elbowVert(int pitch){
-  if ((leftAngle-pitch<=180)&&(leftAngle-pitch>=0)){
+  if ((leftAngle-pitch<=170)&&(leftAngle-pitch>=10)){
     leftAngle=leftAngle-pitch;
   }  else{
     return;
-  }if ((rightAngle+pitch<=180)&&(rightAngle+pitch>=0)){
+  }if ((rightAngle+pitch<=170)&&(rightAngle+pitch>=10)){
     rightAngle=(pitch+rightAngle);  
   } else{
     return;

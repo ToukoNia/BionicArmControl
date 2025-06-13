@@ -169,6 +169,7 @@ void ForearmMovement() { //moves the forarm 90 when button pressed
   ForearmAct.write(actForearmAng);
   }
 
+
 int readSensors() {
   for (int n = 0; n < NumOfSensors; n++) {
     EMGvalues[n] = analogRead(SensorInputPins[n]);
