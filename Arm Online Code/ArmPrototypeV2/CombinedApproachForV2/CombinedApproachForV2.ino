@@ -28,6 +28,8 @@ int pitching, yawing;
 int lastYaw=0, lastPitch=0;
 int error;
 double iSumP=0, iSumY=0;
+
+byte switchGyroButton;
 bool buttonValue=0,buttonFlag=0;
 int gyroSwitchPressed=0;
 
@@ -37,6 +39,10 @@ Servo elbowR;
 int leftElbowAngle, rightElbowAngle;
 
 //EMG variables
+#define TIMING_DEBUG 1
+#define NumOfSensors 2
+#define sampl 20
+
 static byte SensorInputPins[] = { A0, A1};
 static int SensorThresholds[] = { 100, 50}; //Nia 36 and 20
   // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
@@ -48,80 +54,15 @@ int EMGvalues[NumOfSensors];
 
 double average[NumOfSensors];
 int sum[NumOfSensors];
-#define TIMING_DEBUG 1
-#define NumOfSensors 2
-#define sampl 20
+int count; int timeCount;
 
 
-unsigned long timeStamp, timeBudget;
-
-
-void setup() {
-  // put your setup code here, to run once:
-  wristL.attach(servoPin[0]);
-  wristR.attach(servoPin[1]);
-  elbowL.attach(servoPin[2]);
-  elbowR.attach(servoPin[3]);
-  pinMode(switchGyroButton, INPUT_PULLUP);
-
-  constructionSetup();
-  for (int n = 0; n < NumOfSensors; n++) { // Setup for the sensors
-    EMGs[n].init(sampleRate, humFreq, true, true, true);
-  }
-  Serial.begin(9600);
-  while (!Serial)
-  delay(10); // will pause Zero, Leonardo, etc until serial console opens  
-  /* Initialise the sensor */
-  if(!bno.begin())
-  {
-    //Empty loop, if the code does nothing then the IMU is not working or has not been found
-  }
-  timeBudget = 1e6 / sampleRate;
-
-  delay(1000);
-  bno.setExtCrystalUse(true);
-  delay(3000);
-  
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  timeStamp = micros();  
-  readSensors();
-  averaging();
-  
-  //Code for Enabling/disabling gyrowrist
-  buttonValue = !digitalRead(switchGyroButton);
-  if (buttonValue == 1 && buttonFlag == 0 && millis() > time + 250) {
-    switchGyroPressed++;
-    time=millis();
-    buttonFlag = 1;
-  } else if (buttonValue == 0 && buttonFlag == 1) {
-    buttonFlag = 0;
-  }
-  
-  if (switchGyroPressed%2){
-    gyroWrist();
-  }
-
-  //Code for EMG Control
-  if (millis()>timeCripple+5){
-    EMGController();
-  }
- 
-  timeStamp = micros() - timeStamp;
-  timeCount++;
-  delayMicroseconds(500);
-  // if more than timeBudget, the sample rate need to reduce to
-  // SAMPLE_FREQ_500HZ
-
-}
-
+unsigned long timeStamp, timeBudget,time,timeCripple; 
 void EMGController(){ //need to check in with maciek
   //current idea either if average[1] is within 10% of average 2 and both over THRESHOLD from average 0
   //or if average 1 2 and 3 are all over threshold from average 0, and all over threshold, trigger event 1, else event 2
   //combination of these for all 3 points? 
-  
+   
 }
 //Elbow Code
 void elbowVert(int pitch){
@@ -199,6 +140,7 @@ void constructionSetup(){
 }
 
 //EMG Code
+/*
 bool trendChecker(bool direction){  //change this to check EMG values and if one is bigger hold it till stopped. At point where past two samples change the mode.
   if (trend!=direction){
       trendcounter=0;
@@ -210,7 +152,7 @@ bool trendChecker(bool direction){  //change this to check EMG values and if one
   }
   return 0;
 }
-
+*/
 void readSensors() {
   for (int n = 0; n < NumOfSensors; n++) {
     EMGvalues[n] = analogRead(SensorInputPins[n]);
@@ -236,3 +178,66 @@ void averaging() {
   }
   count++;
 }
+
+void setup() {
+  // put your setup code here, to run once:
+  wristL.attach(servoPin[0]);
+  wristR.attach(servoPin[1]);
+  elbowL.attach(servoPin[2]);
+  elbowR.attach(servoPin[3]);
+  pinMode(switchGyroButton, INPUT_PULLUP);
+
+  constructionSetup();
+  for (int n = 0; n < NumOfSensors; n++) { // Setup for the sensors
+    EMGs[n].init(sampleRate, humFreq, true, true, true);
+  }
+  Serial.begin(9600);
+  while (!Serial)
+  delay(10); // will pause Zero, Leonardo, etc until serial console opens  
+  /* Initialise the sensor */
+  if(!bno.begin())
+  {
+    //Empty loop, if the code does nothing then the IMU is not working or has not been found
+  }
+  timeBudget = 1e6 / sampleRate;
+
+  delay(1000);
+  bno.setExtCrystalUse(true);
+  delay(3000);
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  timeStamp = micros();  
+  readSensors();
+  averaging();
+  
+  //Code for Enabling/disabling gyrowrist
+  buttonValue = !digitalRead(switchGyroButton);
+  if (buttonValue == 1 && buttonFlag == 0 && millis() > time + 250) {
+    gyroSwitchPressed++;
+    time=millis();
+    buttonFlag = 1;
+  } else if (buttonValue == 0 && buttonFlag == 1) {
+    buttonFlag = 0;
+  }
+
+  if (gyroSwitchPressed%2){
+    gyroWrist();
+  }
+
+  //Code for EMG Control
+  if (millis()>timeCripple+5){
+    EMGController();
+  }
+ 
+  timeStamp = micros() - timeStamp;
+  timeCount++;
+  delayMicroseconds(500);
+  // if more than timeBudget, the sample rate need to reduce to
+  // SAMPLE_FREQ_500HZ
+
+}
+
+
