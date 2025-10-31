@@ -37,15 +37,6 @@ byte switchArmButton=7;
 bool buttonFlag2 = 0;
 int armSwitchPressed = 0;
 
-
-
-
-
-
-
-
-
-
 long timeTrack2=0;
 //Elbow Variables
 Servo elbowL;
@@ -56,7 +47,7 @@ bool lastPressed=0;
 #define TIMING_DEBUG 1
 #define NumOfSensors 2
 #define sampl 20
-const int EMG_THRESHOLD = 20;
+#define EMG_THRESHOLD 20
 static byte SensorInputPins[] = { A0, A1 };
 static int SensorThresholds[] = { 300, 300 };  //Nia 36 and 20
   // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
@@ -84,9 +75,9 @@ void EMGController() {  //need to check in with maciek
     }
   } else{
       if (average[1] > (average[0]+EMG_THRESHOLD)) {
-        //elbowRot(-1);
+        elbowRot(-1);
     } else if (average[0] > (average[1]+EMG_THRESHOLD)) {
-      //elbowRot(1);
+      elbowRot(1);
     }
   }
 }
@@ -281,7 +272,7 @@ void loop() {
   */
   armMode=armSwitchPressed%2;
   //Code for EMG Control
-  if (!(timeCount%8)) {
+  if (timeCount%2) {
     EMGController();
   }
 

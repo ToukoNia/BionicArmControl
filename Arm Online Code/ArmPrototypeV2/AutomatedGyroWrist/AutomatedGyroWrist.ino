@@ -1,10 +1,11 @@
 //import the servo library
-#include "Servo.h"
+#include "ESP32Servo.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
+#include <LCD-I2C.h>
 
 // Servo Setup
 const byte servoPin[2] = {4,5};
@@ -12,6 +13,7 @@ Servo wristL;
 Servo wristR;
 int leftAngle;
 int rightAngle;
+LCD_I2C lcd(0x27, 16, 2); // Default address of most PCF8574 modules, change according
 
 // IMU Setup
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
@@ -27,7 +29,7 @@ int newPitch;
 int goalYaw = 0;
 int goalPitch = 0;
 
-
+int count=0;
 int lastYaw=0;
 int lastPitch=0;
 int error;
@@ -36,7 +38,8 @@ double iSumP=0, iSumY=0;
 
 void setup() 
 {
-
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
 
   wristL.attach(servoPin[0]);
   wristR.attach(servoPin[1]);
@@ -46,8 +49,7 @@ void setup()
   Serial.begin(9600);
   delay(50);  
 
-  while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
+
 
  Serial.println("Orientation Sensor Test"); Serial.println("");
   
@@ -64,11 +66,17 @@ void setup()
 
   delay(3000);
   constructionSetup();
+  Wire.begin();
+  lcd.begin(&Wire);
+  lcd.display();
+  lcd.backlight();
+  
+
  
 }
 
 void loop() {
-  
+  count++;
 
   imuTime = millis()/(10^6);
   imuPreviousTime = imuTime - (100/(10^6));
@@ -80,19 +88,20 @@ void loop() {
   bno.getEvent(&event);
   int pitching = event.orientation.y;
   int yawing = -event.orientation.z+90;
-  int newPitch = WristPID(1.05,0.3,0.3,pitching,lastPitch,&iSumP,goalPitch);  //1,0.3,0.3we love u xx <3
-  int newYaw = WristPID(1.05,0.5,0.4,yawing,lastYaw,&iSumY,goalYaw);           // 1,0.5,0.4
+  int newPitch = WristPID(1,0.3,0.3,pitching,lastPitch,&iSumP,goalPitch);  //1,0.3,0.3we love u xx <3
+  int newYaw = WristPID(1,0.5,0.4,yawing,lastYaw,&iSumY,goalYaw);           // 1,0.5,0.4
   
   
   //int rolling = event.orientation.x;
 
-   wristIK(newYaw,newPitch);
+  wristIK(newYaw,newPitch);
   lastYaw = newYaw;
   lastPitch = newPitch;
 
-   Serial.print("IMU-Pitch:");Serial.print(pitching);Serial.print("  IMU-Yaw:");Serial.print(yawing);
-   Serial.print("  PID-IMU-Pitch:");Serial.print(newPitch);Serial.print("  PID-IMU-Yaw:");Serial.print(newYaw);
-   Serial.print("  PID-IsumY:");Serial.print(iSumY);
+   //Serial.print("IMU-Pitch:");Serial.print(pitching);Serial.print("  IMU-Yaw:");Serial.println(yawing);
+  if (count%3==0){
+    updateDisplay(pitching,yawing);
+   }
  // constructionSetup();
 
 //   if (switchEMGPressed%2){
@@ -115,6 +124,12 @@ void loop() {
   // SAMPLE_FREQ_500HZ
 }
 
+void updateDisplay(int pitching,int yawing){
+  lcd.clear();
+  lcd.print("IMU-Pitch: ");lcd.print(String(pitching)); 
+  lcd.setCursor(1,1);lcd.print("IMU-Yaw: ");lcd.print(String(yawing));
+}
+
 
 void constructionSetup(){
   wristL.write(90);
@@ -126,6 +141,8 @@ void wristIK(int yaw,int pitch){
   leftAngle=max(0,min(leftAngle,180));
   rightAngle=(yaw+pitch)+90;
   rightAngle=max(0,min(rightAngle,180));
+  wristR.write(rightAngle);
+  wristL.write(leftAngle);
 }
 
 int WristPID(double Kp, double Ki,double Kd,double input,int previous_input, double* iSum, int goal){
