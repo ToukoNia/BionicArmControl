@@ -1,6 +1,16 @@
+
 //import the servo library
 #include "Servo.h"
 #include <EMGFilters.h>
+#include <Arduino.h>
+
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
+
+
 
 //Set up servos
 Servo WristLAct;
@@ -15,14 +25,20 @@ const int wristRActPin=9;
 
 static int joyWristPin[] = {A0, A1};
 
+const byte servoPin[2] = {4,5};
+Servo wristL;
+Servo wristR;
+int leftAngle;
+int rightAngle;
+
 const int handRPPin=5;
 const int handIMPin=6;
 const int forearmActPin=11;
-const int switchEMGButton=4;
+const int switchEMGButton=20;
 const int EMG_THRESHOLD=20;
 
 static byte SensorInputPins[] = { A2, A3};
-static int SensorThresholds[] = { 100, 50}; //Nia 36 and 20
+static int SensorThresholds[] = { 0, 0}; //Nia 36 and 20
 
 // emg filter only support "SAMPLE_FREQ_500HZ" or "SAMPLE_FREQ_1000HZ"
 int sampleRate = SAMPLE_FREQ_500HZ;
@@ -42,11 +58,12 @@ long int time=0;
 int wristTime=0;
 int timeCount = 0;
 
+
 int actHandAng=20;
 int actForearmAng=90;
 #define sampl 20
 int count;
-int buttonValue;
+int buttonValue = 0;
 int buttonFlag = 0;
 
 EMGFilters EMGs[NumOfSensors];
@@ -60,6 +77,22 @@ int jxincr=0; int jyincr=0;
 unsigned long timeStamp;
 unsigned long timeBudget;
 
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
+uint16_t measurement_delay_us = 65535;
+
+unsigned long imuTime;
+unsigned long imuPreviousTime;
+
+
+
+float internalTime;
+
+int newYaw;
+int newPitch;
+int goalYaw = 90;
+int goalPitch = 0;
+
+
 void setup() 
 {
   WristLAct.attach(wristLActPin);
@@ -67,7 +100,10 @@ void setup()
   HandRPAct.attach(handRPPin);
   HandIMAct.attach(handIMPin);
   ForearmAct.attach(forearmActPin);
-  ForearmAct.write(90);
+ // ForearmAct.write(90);
+
+  wristL.attach(servoPin[0]);
+  wristR.attach(servoPin[1]);
   //(gave up, wasn't needed, need to add)
   //pinMode(potWristPin,INPUT);
   //pinMode(potHandPin,INPUT);
@@ -81,32 +117,61 @@ void setup()
   timeBudget = 1e6 / sampleRate;
   pinMode(switchEMGButton, INPUT_PULLUP);
   delay(50);  
+
+  while (!Serial)
+    delay(10); // will pause Zero, Leonardo, etc until serial console opens
+
+ Serial.println("Orientation Sensor Test"); Serial.println("");
+  
+  /* Initialise the sensor */
+  if(!bno.begin())
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while(1);
+  }
+  
+  delay(1000);
+    
+  bno.setExtCrystalUse(true);
+
+  constructionSetup();
+  internalTime = millis();
+  delay(3000);
+
+
+
+
 }
 
 void loop() {
+
   timeStamp = micros();  
-  readSensors();
-  averaging();
-  WristMovement();
-  
-  buttonValue = !digitalRead(switchEMGButton);
 
-  if (buttonValue == 1 && buttonFlag == 0 && millis() > time + 250) {
-    switchEMGPressed++;
-    time=millis();
-    buttonFlag = 1;
-  } else if (buttonValue == 0 && buttonFlag == 1) {
-    buttonFlag = 0;
-  }
+  imuTime = millis()/(10^6);
+  imuPreviousTime = imuTime - (100/(10^6));
+
+  //imuDistances();
+  //constructionSetup();
+  /* Get a new sensor event */ 
+  sensors_event_t event; 
+  bno.getEvent(&event);
+  int pitching = event.orientation.y;
+  int newPitch = pitching - goalPitch;
+  int yawing = event.orientation.z;
+  int newYaw = 1.5*(- yawing + goalYaw);
+  //int rolling = event.orientation.x;
+   wristIK(newYaw,newPitch);
 
   
-  if (switchEMGPressed%2){
-   ForearmMovement();
- //   Serial.println("Forearm movement active");
-  } else {
-   HandMovement();
-  //  Serial.println("Hand movement active");
-  }
+
+//   if (switchEMGPressed%2){
+//    ForearmMovement();
+//  //   Serial.println("Forearm movement active");
+//   } else {
+//    HandMovement();
+//   //  Serial.println("Hand movement active");
+//   }
 
   //Serial.print(EMGvalues[0]); Serial.print(", "); Serial.println(EMGvalues[1]); 
  
@@ -122,6 +187,8 @@ void loop() {
 }
 
 
+
+// }
 // revised?
 void WristMovement() {
 
@@ -138,7 +205,7 @@ void WristMovement() {
 
     wristLAng=wristLAng+jyincr;
     wristRAng=wristRAng+jyincr;
-  
+    
 
   wristLAng=(wristLAng<130) ? wristLAng : 130;
   wristLAng=(wristLAng>50) ? wristLAng : 50;
@@ -148,6 +215,7 @@ void WristMovement() {
 
   WristLAct.write(wristLAng); // if j val is left
   WristRAct.write(wristRAng);
+
 }
 
 void HandMovement() {  //Hand Movement
@@ -168,7 +236,6 @@ void ForearmMovement() { //moves the forarm 90 when button pressed
   }
   ForearmAct.write(actForearmAng);
   }
-
 
 int readSensors() {
   for (int n = 0; n < NumOfSensors; n++) {
@@ -195,3 +262,33 @@ int averaging() {
   }
   count++;
 }
+
+void constructionSetup(){
+  wristL.write(90);
+  wristR.write(90);
+}
+
+void wristIK(int pitchIK,int yawIK){
+  leftAngle=-pitchIK+yawIK+90;
+  leftAngle=max(0,min(leftAngle,180));
+  rightAngle=(pitchIK+yawIK)+90;
+  rightAngle=max(0,min(rightAngle,180));
+  wristL.write(leftAngle);
+  wristR.write(rightAngle);
+  Serial.print(" | leftAngle: ");
+  Serial.print(leftAngle);
+  Serial.print(" | rightAngle: ");
+  Serial.print(rightAngle);
+  Serial.print(" | pitch: ");
+  Serial.print(pitchIK);
+  Serial.print(" | yaw: ");
+  Serial.println(yawIK);
+
+   
+  
+
+  
+  
+}
+
+
